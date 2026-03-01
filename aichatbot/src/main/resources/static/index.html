@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal AI | Next-Gen Chat Experience</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #020617;
+            overflow: hidden;
+        }
+        
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Aurora Background Animation */
+        .aurora-bg {
+            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #581c87, #0f172a);
+            background-size: 400% 400%;
+            animation: aurora 15s ease infinite;
+        }
+        
+        @keyframes aurora {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Glassmorphism Utilities */
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .glass-strong {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Glow Effects */
+        .glow-text {
+            text-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+        }
+        
+        .glow-cyan {
+            box-shadow: 0 0 30px rgba(34, 211, 238, 0.4);
+        }
+        
+        .glow-purple {
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.4);
+        }
+        
+        /* Message Animations */
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(20px) scale(0.95); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-20px) scale(0.95); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+        
+        .animate-slide-right { animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-slide-left { animation: slideInLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, #a855f7, #22d3ee);
+            border-radius: 10px;
+        }
+        
+        /* Typing Indicator */
+        .typing-dot {
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        
+        /* Particle Canvas */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #a855f7 0%, #22d3ee 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Button Hover Effects */
+        .btn-magic {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-magic:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px -10px rgba(168, 85, 247, 0.5);
+        }
+        .btn-magic:active {
+            transform: translateY(0);
+        }
+        
+        /* Cursor Glow */
+        .cursor-glow {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(168,85,247,0.15) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: all 0.1s ease;
+        }
+    </style>
+</head>
+<body class="aurora-bg text-white antialiased">
+    <div id="cursor-glow" class="cursor-glow hidden md:block"></div>
+    <canvas id="particle-canvas"></canvas>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useCallback } = React;
+        const { createElement: h } = React;
+        
+        // Particle System Hook
+        const useParticles = () => {
+            const canvasRef = useRef(null);
+            
+            useEffect(() => {
+                const canvas = document.getElementById('particle-canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                
+                const particles = [];
+                const particleCount = 100;
+                
+                for (let i = 0; i < particleCount; i++) {
+                    particles.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        vx: (Math.random() - 0.5) * 0.5,
+                        vy: (Math.random() - 0.5) * 0.5,
+                        size: Math.random() * 2 + 1,
+                        color: Math.random() > 0.5 ? 'rgba(168, 85, 247, 0.5)' : 'rgba(34, 211, 238, 0.5)'
+                    });
+                }
+                
+                let animationId;
+                const animate = () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    particles.forEach((p, i) => {
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        
+                        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+                        
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                        ctx.fillStyle = p.color;
+                        ctx.fill();
+                        
+                        // Connect nearby particles
+                        for (let j = i + 1; j < particles.length; j++) {
+                            const p2 = particles[j];
+                            const dx = p.x - p2.x;
+                            const dy = p.y - p2.y;
+                            const dist = Math.sqrt(dx * dx + dy * dy);
+                            
+                            if (dist < 100) {
+                                ctx.beginPath();
+                                ctx.moveTo(p.x, p.y);
+                                ctx.lineTo(p2.x, p2.y);
+                                ctx.strokeStyle = `rgba(168, 85, 247, ${0.1 * (1 - dist / 100)})`;
+                                ctx.lineWidth = 0.5;
+                                ctx.stroke();
+                            }
+                        }
+                    });
+                    
+                    animationId = requestAnimationFrame(animate);
+                };
+                
+                animate();
+                
+                const handleResize = () => {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                };
+                
+                window.addEventListener('resize', handleResize);
+                return () => {
+                    cancelAnimationFrame(animationId);
+                    window.removeEventListener('resize', handleResize);
+                };
+            }, []);
+        };
+        
+        // Cursor Glow Effect
+        const useCursorGlow = () => {
+            useEffect(() => {
+                const glow = document.getElementById('cursor-glow');
+                const moveCursor = (e) => {
+                    glow.style.left = e.clientX + 'px';
+                    glow.style.top = e.clientY + 'px';
+                };
+                window.addEventListener('mousemove', moveCursor);
+                return () => window.removeEventListener('mousemove', moveCursor);
+            }, []);
+        };
+        
+        // Message Component
+        const Message = ({ content, isUser, timestamp, index }) => {
+            const isNew = useRef(true);
+            
+            useEffect(() => {
+                const timer = setTimeout(() => { isNew.current = false; }, 500);
+                return () => clearTimeout(timer);
+            }, []);
+            
+            const avatar = isUser 
+                ? h('div', { className: 'w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center flex-shrink-0 glow-cyan' },
+                    h('i', { dataLucide: 'user', className: 'w-5 h-5 text-white' }))
+                : h('div', { className: 'w-10 h-10 rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center flex-shrink-0 glow-purple' },
+                    h('i', { dataLucide: 'bot', className: 'w-5 h-5 text-white' }));
+            
+            return h('div', {
+                className: `flex gap-3 mb-6 ${isUser ? 'flex-row-reverse animate-slide-right' : 'animate-slide-left'}`,
+                style: { animationDelay: `${index * 0.1}s` }
+            }, [
+                avatar,
+                h('div', { 
+                    className: `max-w-[80%] md:max-w-[70%] px-5 py-4 rounded-2xl relative group ${
+                        isUser 
+                            ? 'bg-gradient-to-br from-cyan-600 to-blue-700 text-white rounded-tr-sm' 
+                            : 'glass-strong text-slate-100 rounded-tl-sm'
+                    }`
+                }, [
+                    h('p', { className: 'text-sm md:text-base leading-relaxed whitespace-pre-wrap' }, content),
+                    h('div', { className: `flex items-center gap-2 mt-2 text-xs opacity-60 ${isUser ? 'justify-start' : 'justify-end'}` }, [
+                        h('span', null, timestamp),
+                        isUser && h('i', { dataLucide: 'check-check', className: 'w-3 h-3' })
+                    ]),
+                    // Glow effect on hover
+                    h('div', { 
+                        className: `absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none ${
+                            isUser ? 'bg-gradient-to-br from-cyan-400/20 to-blue-400/20' : 'bg-gradient-to-br from-violet-400/20 to-fuchsia-400/20'
+                        }`
+                    })
+                ])
+            ]);
+        };
+        
+        // Typing Indicator Component
+        const TypingIndicator = () => h('div', { className: 'flex gap-3 mb-6 animate-slide-left' }, [
+            h('div', { className: 'w-10 h-10 rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center flex-shrink-0' },
+                h('i', { dataLucide: 'bot', className: 'w-5 h-5 text-white' })),
+            h('div', { className: 'glass-strong px-4 py-3 rounded-2xl rounded-tl-sm flex items-center gap-1' }, [
+                h('div', { className: 'w-2 h-2 bg-violet-400 rounded-full typing-dot' }),
+                h('div', { className: 'w-2 h-2 bg-cyan-400 rounded-full typing-dot' }),
+                h('div', { className: 'w-2 h-2 bg-fuchsia-400 rounded-full typing-dot' })
+            ])
+        ]);
+        
+        // Header Component
+        const Header = ({ onClear }) => h('div', { className: 'glass-strong border-b border-white/10 p-6 flex items-center justify-between sticky top-0 z-20' }, [
+            h('div', { className: 'flex items-center gap-4' }, [
+                h('div', { className: 'relative' }, [
+                    h('div', { className: 'w-12 h-12 rounded-xl bg-gradient-to-br from-violet-600 via-fuchsia-500 to-cyan-500 flex items-center justify-center animate-float shadow-lg shadow-violet-500/30' },
+                        h('i', { dataLucide: 'sparkles', className: 'w-6 h-6 text-white' })),
+                    h('div', { className: 'absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-slate-900 animate-pulse' })
+                ]),
+                h('div', null, [
+                    h('h1', { className: 'text-xl font-bold gradient-text glow-text' }, "Personal AI"),
+                    h('div', { className: 'flex items-center gap-2 text-xs text-slate-400 font-mono' }, [
+                        h('span', { className: 'w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse' }),
+                        "SYSTEM ONLINE"
+                    ])
+                ])
+            ]),
+            h('div', { className: 'flex gap-2' }, [
+                h('button', {
+                    onClick: onClear,
+                    className: 'btn-magic p-2 rounded-lg glass hover:bg-white/10 text-slate-300 transition-colors',
+                    title: 'Clear conversation'
+                }, h('i', { dataLucide: 'trash-2', className: 'w-5 h-5' })),
+                h('button', {
+                    className: 'btn-magic p-2 rounded-lg glass hover:bg-white/10 text-slate-300 transition-colors hidden sm:block',
+                    title: 'Settings'
+                }, h('i', { dataLucide: 'settings', className: 'w-5 h-5' }))
+            ])
+        ]);
+        
+        // Input Component
+        const ChatInput = ({ onSend, disabled }) => {
+            const [value, setValue] = useState('');
+            const textareaRef = useRef(null);
+            
+            const handleKeyDown = (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                }
+            };
+            
+            const handleSend = () => {
+                if (!value.trim() || disabled) return;
+                onSend(value.trim());
+                setValue('');
+                if (textareaRef.current) textareaRef.current.style.height = 'auto';
+            };
+            
+            const autoResize = (e) => {
+                const target = e.target;
+                target.style.height = 'auto';
+                target.style.height = Math.min(target.scrollHeight, 150) + 'px';
+            };
+            
+            useEffect(() => {
+                if (textareaRef.current && !disabled) {
+                    textareaRef.current.focus();
+                }
+            }, [disabled]);
+            
+            return h('div', { className: 'glass-strong border-t border-white/10 p-4' }, [
+                h('div', { className: 'max-w-4xl mx-auto flex gap-3 items-end' }, [
+                    h('div', { className: 'flex-1 relative group' }, [
+                        h('textarea', {
+                            ref: textareaRef,
+                            value,
+                            onChange: (e) => setValue(e.target.value),
+                            onKeyDown: handleKeyDown,
+                            onInput: autoResize,
+                            placeholder: 'Enter your query...',
+                            disabled,
+                            rows: 1,
+                            className: 'w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all resize-none font-mono text-sm md:text-base custom-scrollbar max-h-[150px]'
+                        }),
+                        h('div', { 
+                            className: 'absolute inset-0 rounded-xl bg-gradient-to-r from-violet-600/20 to-cyan-600/20 opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none blur' 
+                        })
+                    ]),
+                    h('button', {
+                        onClick: handleSend,
+                        disabled: !value.trim() || disabled,
+                        className: `btn-magic p-3 rounded-xl flex-shrink-0 transition-all duration-300 ${
+                            value.trim() && !disabled
+                                ? 'bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white shadow-lg shadow-violet-500/30 glow-purple' 
+                                : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                        }`
+                    }, h('i', { dataLucide: 'send', className: 'w-5 h-5' }))
+                ]),
+                h('div', { className: 'max-w-4xl mx-auto mt-2 flex justify-between items-center text-xs text-slate-500 font-mono' }, [
+                    h('span', null, 'SHIFT + ENTER for new line'),
+                    h('span', null, `Words: ${value.length}/1000`)
+                ])
+            ]);
+        };
+        
+        // Main App Component
+        const AuroraChat = () => {
+            useParticles();
+            useCursorGlow();
+            
+            const [messages, setMessages] = useState([
+                { id: 1, content: "Welcome to the Neon Aurora Interface. I am your advanced AI companion. How may I assist your journey today? 🌌", isUser: false, timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }
+            ]);
+            const [isTyping, setIsTyping] = useState(false);
+            const messagesEndRef = useRef(null);
+            
+            const scrollToBottom = () => {
+                messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            };
+            
+            useEffect(() => {
+                scrollToBottom();
+                lucide.createIcons();
+            }, [messages, isTyping]);
+            
+            const sendMessage = async (content) => {
+                const newMessage = {
+                    id: Date.now(),
+                    content,
+                    isUser: true,
+                    timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                };
+                
+                setMessages(prev => [...prev, newMessage]);
+                setIsTyping(true);
+                
+                try {
+                    const response = await fetch("/api/chat", {
+                        method: "POST",
+                        headers: { "Content-Type": "text/plain" },
+                        body: content
+                    });
+                    
+                    if (!response.ok) throw new Error('API Error');
+                    
+                    const data = await response.text();
+                    
+                    setTimeout(() => {
+                        setIsTyping(false);
+                        setMessages(prev => [...prev, {
+                            id: Date.now() + 1,
+                            content: data || "Neural network processed your request successfully.",
+                            isUser: false,
+                            timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                        }]);
+                    }, 1000); // Simulated thinking delay for effect
+                    
+                } catch (error) {
+                    setTimeout(() => {
+                        setIsTyping(false);
+                        setMessages(prev => [...prev, {
+                            id: Date.now() + 1,
+                            content: "⚠️ Connection to neural grid interrupted. Please retry transmission.",
+                            isUser: false,
+                            timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                            isError: true
+                        }]);
+                    }, 1000);
+                }
+            };
+            
+            const clearChat = () => {
+                setMessages([{
+                    id: Date.now(),
+                    content: "Memory banks cleared. Ready for new input.",
+                    isUser: false,
+                    timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                }]);
+            };
+            
+            return h('div', { className: 'min-h-screen flex flex-col relative z-10' }, [
+                // Floating ambient orbs
+                h('div', { className: 'fixed top-20 left-10 w-72 h-72 bg-violet-600/30 rounded-full blur-[100px] animate-float pointer-events-none' }),
+                h('div', { className: 'fixed bottom-20 right-10 w-96 h-96 bg-cyan-600/20 rounded-full blur-[120px] animate-float pointer-events-none', style: { animationDelay: '2s' } }),
+                
+                // Main Container
+                h('div', { className: 'flex-1 max-w-4xl w-full mx-auto flex flex-col h-screen' }, [
+                    h(Header, { onClear: clearChat }),
+                    
+                    // Messages Area
+                    h('div', { 
+                        className: 'flex-1 overflow-y-auto custom-scrollbar p-4 md:p-6 space-y-2',
+                        style: { scrollBehavior: 'smooth' }
+                    }, [
+                        ...messages.map((msg, idx) => h(Message, { 
+                            key: msg.id, 
+                            content: msg.content, 
+                            isUser: msg.isUser, 
+                            timestamp: msg.timestamp,
+                            index: idx
+                        })),
+                        isTyping && h(TypingIndicator, { key: 'typing' }),
+                        h('div', { ref: messagesEndRef, key: 'end' })
+                    ]),
+                    
+                    h(ChatInput, { onSend: sendMessage, disabled: isTyping })
+                ]),
+                
+                // Decorative corner elements
+                h('div', { className: 'fixed top-4 right-4 text-violet-400/50 text-xs font-mono hidden md:block' }, [
+                    h('div', null, 'SYS.VER.2.0'),
+                    h('div', null, 'LATENCY: 12ms')
+                ]),
+                h('div', { className: 'fixed bottom-4 left-4 text-cyan-400/50 text-xs font-mono hidden md:block' }, [
+                    h('div', null, 'Developed By'),
+                    h('div', null, 'Ankit')
+                ])
+            ]);
+        };
+        
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(h(AuroraChat));
+        
+        // Re-initialize icons after mount
+        setTimeout(() => lucide.createIcons(), 100);
+    </script>
+</body>
+</html>
