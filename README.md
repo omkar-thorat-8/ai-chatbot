@@ -1,4 +1,4 @@
-# 🌌 Personal AI – Neon Aurora Chat Experience
+# 🌌 Personal AI – ChatBot
 
 > A futuristic AI chatbot built using **Spring Boot + React + OpenRouter API**, featuring an animated aurora UI and full mobile responsiveness.
 
