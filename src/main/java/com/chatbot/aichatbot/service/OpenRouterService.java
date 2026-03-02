@@ -18,8 +18,10 @@ public class OpenRouterService {
     private final ObjectMapper mapper = new ObjectMapper();
 
     public String getResponse(String message) throws IOException {
-
-        String jsonBody = """
+    	
+    	System.out.println("API KEY LENGTH: " + (apiKey == null ? "NULL" : apiKey.length()));
+        
+    	String jsonBody = """
         {
           "model": "openai/gpt-3.5-turbo",
           "messages": [
