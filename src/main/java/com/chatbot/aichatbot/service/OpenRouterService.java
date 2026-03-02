@@ -38,7 +38,7 @@ public class OpenRouterService {
                 .post(body)
                 .addHeader("Authorization", "Bearer " + apiKey)
                 .addHeader("Content-Type", "application/json")
-                .addHeader("HTTP-Referer", "http://localhost:8080")
+                .addHeader("HTTP-Referer", "https://ai-chatbot-sfs7.onrender.com")
                 .addHeader("X-Title", "AI Chatbot Project")
                 .build();
 
