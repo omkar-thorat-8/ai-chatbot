@@ -48,11 +48,16 @@ public class OpenRouterService {
 
         JsonNode root = mapper.readTree(responseBody);
 
-        return root
-                .path("choices")
-                .get(0)
-                .path("message")
-                .path("content")
-                .asText();
+        JsonNode choicesNode = root.path("choices");
+
+        if (choicesNode.isArray() && choicesNode.size() > 0) {
+            return choicesNode.get(0)
+                    .path("message")
+                    .path("content")
+                    .asText();
+        } else {
+            // Print full error response for debugging
+            return "⚠️ OpenRouter Error: " + root.toString();
+        }
     }
 }
