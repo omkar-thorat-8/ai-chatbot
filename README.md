@@ -89,4 +89,8 @@ Java Full Stack Developer
 
 ---
 
+## 📸 Preview
+
+![Chat App Preview](https://github.com/omkar-thorat-8/ai-chatbot/blob/master/Screenshot%20(118).png)
+
 ⭐ If you like this project, feel free to star the repository!
