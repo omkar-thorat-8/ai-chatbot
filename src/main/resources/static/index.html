@@ -15,6 +15,7 @@
         body {
             font-family: 'Inter', sans-serif;
             background: #020617;
+            height: 100vh;
             overflow: hidden;
         }
         
@@ -367,7 +368,7 @@
                 }
             }, [disabled]);
             
-            return h('div', { className: 'glass-strong border-t border-white/10 p-4' }, [
+            return h('div', { className: 'glass-strong border-t border-white/10 p-4 sticky bottom-0 z-20' }, [
                 h('div', { className: 'max-w-4xl mx-auto flex gap-3 items-end' }, [
                     h('div', { className: 'flex-1 relative group' }, [
                         h('textarea', {
@@ -477,13 +478,13 @@
                 }]);
             };
             
-            return h('div', { className: 'min-h-screen flex flex-col relative z-10' }, [
+            return h('div', { className: 'h-screen flex flex-col relative z-10 overflow-hidden' }, [
                 // Floating ambient orbs
                 h('div', { className: 'fixed top-20 left-10 w-72 h-72 bg-violet-600/30 rounded-full blur-[100px] animate-float pointer-events-none' }),
                 h('div', { className: 'fixed bottom-20 right-10 w-96 h-96 bg-cyan-600/20 rounded-full blur-[120px] animate-float pointer-events-none', style: { animationDelay: '2s' } }),
                 
                 // Main Container
-                h('div', { className: 'flex-1 max-w-4xl w-full mx-auto flex flex-col h-screen' }, [
+                h('div', { className: 'flex-1 max-w-4xl w-full mx-auto flex flex-col h-[100dvh]' }, [
                     h(Header, { onClear: clearChat }),
                     
                     // Messages Area
