@@ -13,11 +13,11 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
         
         body {
-            font-family: 'Inter', sans-serif;
-            background: #020617;
-            height: 100vh;
-            overflow: hidden;
-        }
+		    font-family: 'Inter', sans-serif;
+		    background: #020617;
+		    min-height: 100dvh;
+		    margin: 0;
+			}
         
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
@@ -368,7 +368,7 @@
                 }
             }, [disabled]);
             
-            return h('div', { className: 'glass-strong border-t border-white/10 p-4 sticky bottom-0 z-20' }, [
+            return h('div', { className: 'glass-strong border-t border-white/10 p-4 fixed bottom-0 left-0 right-0 z-30' }, [
                 h('div', { className: 'max-w-4xl mx-auto flex gap-3 items-end' }, [
                     h('div', { className: 'flex-1 relative group' }, [
                         h('textarea', {
@@ -409,7 +409,7 @@
             useCursorGlow();
             
             const [messages, setMessages] = useState([
-                { id: 1, content: "Welcome to the Neon Aurora Interface. I am your advanced AI companion. How may I assist your journey today? 🌌", isUser: false, timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }
+                { id: 1, content: "Welcome to Ankit's AI. I am your advanced AI companion. How may I assist your journey today? 🌌", isUser: false, timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }
             ]);
             const [isTyping, setIsTyping] = useState(false);
             const messagesEndRef = useRef(null);
@@ -478,18 +478,18 @@
                 }]);
             };
             
-            return h('div', { className: 'h-screen flex flex-col relative z-10 overflow-hidden' }, [
+            return h('div', { className: 'min-h-[100dvh] flex flex-col relative z-10' }, [
                 // Floating ambient orbs
                 h('div', { className: 'fixed top-20 left-10 w-72 h-72 bg-violet-600/30 rounded-full blur-[100px] animate-float pointer-events-none' }),
                 h('div', { className: 'fixed bottom-20 right-10 w-96 h-96 bg-cyan-600/20 rounded-full blur-[120px] animate-float pointer-events-none', style: { animationDelay: '2s' } }),
                 
                 // Main Container
-                h('div', { className: 'flex-1 max-w-4xl w-full mx-auto flex flex-col h-[100dvh]' }, [
+                h('div', { className: 'flex-1 max-w-4xl w-full mx-auto flex flex-col min-h-[100dvh]' }, [
                     h(Header, { onClear: clearChat }),
                     
                     // Messages Area
                     h('div', { 
-                        className: 'flex-1 overflow-y-auto custom-scrollbar p-4 md:p-6 space-y-2',
+                        className: 'flex-1 overflow-y-auto custom-scrollbar p-4 md:p-6 space-y-2 pb-32',
                         style: { scrollBehavior: 'smooth' }
                     }, [
                         ...messages.map((msg, idx) => h(Message, { 
@@ -509,11 +509,11 @@
                 // Decorative corner elements
                 h('div', { className: 'fixed top-4 right-4 text-violet-400/50 text-xs font-mono hidden md:block' }, [
                     h('div', null, 'SYS.VER.2.0'),
-                    h('div', null, 'LATENCY: 12ms')
+                    h('div', null, 'Developed by Ankit')
                 ]),
                 h('div', { className: 'fixed bottom-4 left-4 text-cyan-400/50 text-xs font-mono hidden md:block' }, [
-                    h('div', null, 'Developed By'),
-                    h('div', null, 'Ankit')
+                    h('div', null, 'online'),
+                    h('div', null, 'LATENCY: 80ms')
                 ])
             ]);
         };
