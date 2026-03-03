@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://readme-typing-svg.herokuapp.com?size=25&duration=3000&color=39FF14&center=true&vCenter=true&width=850&lines=Next-Gen+AI+Chatbot;Conversational+Intelligence;Spring+Boot+Architecture;OpenAI+API+Powered;Seamless+Real-Time+Interaction" />
+  <img src="https://readme-typing-svg.herokuapp.com?size=26&duration=3000&color=00F5D4&center=true&vCenter=true&width=800&lines=AI+Chatbot+%F0%9F%A4%96;Powered+By+Spring+Boot;Integrated+With+OpenAI+API;Real-Time+Intelligent+Responses;Modern+Conversational+Experience" />
 </p>
 
 # 🌌 Personal AI – ChatBot
