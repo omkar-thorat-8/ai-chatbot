@@ -2,10 +2,6 @@
   <img src="https://readme-typing-svg.herokuapp.com?size=26&duration=3000&color=00F5D4&center=true&vCenter=true&width=800&lines=AI+Chatbot+%F0%9F%A4%96;Powered+By+Spring+Boot;Integrated+With+OpenAI+API;Real-Time+Intelligent+Responses;Modern+Conversational+Experience" />
 </p>
 
-<p align="center">
-  <img src="https://media.giphy.com/media/26BRuo6sLetdllPAQ/giphy.gif" width="500" />
-</p>
-
 # 🌌 Personal AI – ChatBot
 
 > A futuristic AI chatbot built using **Spring Boot + React + OpenRouter API**, featuring an animated aurora UI and full mobile responsiveness.
