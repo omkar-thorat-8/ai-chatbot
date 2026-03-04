@@ -24,7 +24,7 @@
 - 📱 Fully responsive (Mobile + Desktop)
 - ⚡ Typing indicator & smooth animations
 - 🔐 Secure API key handling with environment variables
-- 🚀 Deployed on Render
+- 🚀 Deployed on Render using Docker
 
 ---
 
